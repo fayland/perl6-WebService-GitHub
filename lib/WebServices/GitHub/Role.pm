@@ -1,5 +1,3 @@
-unit module WebServices::GitHub::Role;
-
 use v6;
 
 use URI;
@@ -15,14 +13,10 @@ role WebServices::GitHub::Role {
     has $.auth_login;
     has $.auth_password;
 
-    has $.ua = HTTP::UserAgent.new;
     has $.useragent = 'perl6-WebService-GitHub/0.1.0';
+    has $.ua = HTTP::UserAgent.new;
 
     method request(Str $path, $method='GET', :$data) {
-        state $ua;
-
-        # 'GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE'
-
         my $uri = URI.new($.endpoint ~ $path);
         if ($method eq 'GET' and $data) {
             $uri.query_form($data);
@@ -46,11 +40,17 @@ role WebServices::GitHub::Role {
 
         if ($method ne 'GET' and $data) {
             $request.content(to-json($data));
+            $request.header.field(Content-Length => $request.content.length);
         }
 
-        $request.header.field(Content-Length => $request.content ?? $request.content.length !! 0);
-
+        $request = $.prepare_request($request);
         my $res = $.ua.request($request);
+        $res = $.handle_response($res);
+
         return WebServices::GitHub::Response.new(raw => $res);
     }
+
+    # for role override
+    method prepare_request($request) { return $request }
+    method handle_response($response) { return $response }
 }

@@ -9,4 +9,12 @@ my $gh = WebServices::GitHub.new(
 );
 
 my $res = $gh.request('/user');
-say $res.perl;
+my $data = $res.data;
+diag $data.perl;
+ok( $data );
+ok( $data<id> );
+ok( $data<email> );
+ok( $data<login> );
+ok( $data<name> );
+
+done-testing;
