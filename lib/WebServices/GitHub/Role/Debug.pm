@@ -2,11 +2,16 @@ use v6;
 
 role WebServices::GitHub::Role::Debug {
     method prepare_request($request) {
-        say $request.perl;
-        return $request;
+        $*ERR.say(
+            map(
+                '>>> ' ~  *.subst(/^Authorization: .*$/, 'Authorization: X'),
+                $request.Str.chomp.split("\n")
+            ).join("\n")
+        );
+        nextsame;
     }
     method handle_response($response) {
-        say $response.perl;
-        return $response
+        $*ERR.say( map('<<< ' ~  *, $response.Str.chomp.split("\n")).join("\n") );
+        nextsame;
     }
 }
