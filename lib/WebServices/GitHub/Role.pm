@@ -16,6 +16,8 @@ role WebServices::GitHub::Role {
     has $.useragent = 'perl6-WebService-GitHub/0.1.0';
     has $.ua = HTTP::UserAgent.new;
 
+    has %.role_data;
+
     method request(Str $path, $method='GET', :$data) {
         my $uri = URI.new($.endpoint ~ $path);
         if ($method eq 'GET' and $data) {
