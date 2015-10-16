@@ -1,3 +1,4 @@
+sudo: false
 language: perl6
 perl6:
     - latest
@@ -5,4 +6,4 @@ perl6:
 install:
     - rakudobrew build-panda
     - panda installdeps .
-
+    - env

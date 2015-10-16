@@ -19,6 +19,7 @@ role WebServices::GitHub::Role {
     # request args
     has $.per_page;
     has $.jsonp_callback;
+    has $.time-zone;
 
     # response args
     has $.auto_pagination = 0;
@@ -38,6 +39,12 @@ role WebServices::GitHub::Role {
         $request.uri($uri);
         $request.header.field(User-Agent => $.useragent);
         $request.header.field(Accept => 'application/vnd.github.v3+json');
+
+        if $.time-zone.defined {
+            $request.header.field(
+                Time-Zone => $.time-zone
+            );
+        }
 
         if $.auth_login.defined && $.auth_password.defined {
             $request.header.field(
