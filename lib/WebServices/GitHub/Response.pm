@@ -5,11 +5,11 @@ use JSON::Fast; # from-json
 class WebServices::GitHub::Response {
     has $.raw;
 
-    has $.auto_pagination = 0;
-
     method data {
         from-json($.raw.content);
     }
+
+    method header(Str $field) { $!raw.field($field).Str }
 
     submethod get-link-header($rel) {
         state %link-header;
@@ -17,10 +17,10 @@ class WebServices::GitHub::Response {
 
         # Link: <https://api.github.com/user/repos?page=3&per_page=100>; rel="next",
         # <https://api.github.com/user/repos?page=50&per_page=100>; rel="last"
-        my $raw_link_header = $!raw.field('Link').Str || return;
+        my $raw_link_header = self.header('Link') || return;
         for $raw_link_header.split(',') -> $part {
             my ($link, $rel) = ($part ~~ /\<(.+)\>\;\s*rel\=\"(\w+)\"/)[0, 1];
-            %link-header{ $rel } = $link;
+            %link-header{$rel} = $link;
         }
         return %link-header{$rel};
     }
@@ -30,20 +30,30 @@ class WebServices::GitHub::Response {
     method next-page-url  { $.get-link-header('next');  }
     method last-page-url  { $.get-link-header('last');  }
 
-    method x-ratelimit-limit     { $!raw.field('X-RateLimit-Limit').Str;     }
-    method x-ratelimit-remaining { $!raw.field('X-RateLimit-Remaining').Str; }
-    method x-ratelimit-reset     { $!raw.field('X-RateLimit-Reset').Str;     }
+    method x-ratelimit-limit     { $.header('X-RateLimit-Limit');     }
+    method x-ratelimit-remaining { $.header('X-RateLimit-Remaining'); }
+    method x-ratelimit-reset     { $.header('X-RateLimit-Reset');     }
 
-    method next {
-        state @items;
+    # has $.auto_pagination = 0;
+    # method next {
+    #     state @items;
+    #     state $is_data_init = 0;
 
-        return @items.shift if @items.elems;
+    #     return @items.shift if @items.elems;
 
-        my $data = $.data;
-        @items = @($data<items>) if $data<items>.defined;
-        @items = ($data) unless @items;
+    #     if ($is_data_init and $!auto_pagination) {
+    #         # get next-page
+    #     }
 
-        return @items.shift;
-    }
+    #     unless ($is_data_init) {
+    #         my $data = $.data;
+    #         @items = @($data<items>) if $data<items>.defined;
+    #         @items = ($data) unless @items;
+
+    #         $is_data_init = 1;
+    #         return @items.shift;
+    #     }
+
+    # }
 
 }
