@@ -3,7 +3,7 @@ use WebServices::GitHub;
 
 ok(1);
 
-if (%*ENV<TEST_TRAVIS>) {
+if (%*ENV<TRAVIS>) {
     diag "running on travis";
     my $gh = WebServices::GitHub.new;
     my $user = $gh.request('/users/fayland').data;
