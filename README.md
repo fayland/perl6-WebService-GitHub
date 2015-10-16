@@ -15,3 +15,11 @@
 
 # Examples
 
+## Public Access without access-token
+
+### get user info
+
+    my $gh = WebServices::GitHub.new;
+    my $user = $gh.request('/users/fayland').data;
+    say $user<name>;
+
