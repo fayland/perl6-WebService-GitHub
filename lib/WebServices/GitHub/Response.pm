@@ -1,6 +1,6 @@
 use v6;
 
-use JSON::Tiny; # from-json
+use JSON::Fast; # from-json
 
 class WebServices::GitHub::Response {
     has $.raw;
@@ -34,14 +34,16 @@ class WebServices::GitHub::Response {
     method x-ratelimit-remaining { $!raw.field('X-RateLimit-Remaining').Str; }
     method x-ratelimit-reset     { $!raw.field('X-RateLimit-Reset').Str;     }
 
-    method iter {
-        return WebServices::GitHub::Response::Iter.new(resp => self);
-    }
-}
+    method next {
+        state @items;
 
-class WebServices::GitHub::Response::Iter does Iterable {
-    has $.resp;
-    method iterator() {
+        return @items.shift if @items.elems;
 
+        my $data = $.data;
+        @items = @($data<items>) if $data<items>.defined;
+        @items = ($data) unless @items;
+
+        return @items.shift;
     }
+
 }

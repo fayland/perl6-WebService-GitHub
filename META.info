@@ -3,7 +3,7 @@
     "version"       : "0.1.0",
     "author"        : "github:fayland",
     "description"   : "GitHub API",
-    "depends"       : [ "MIME::Base64", "URI", "HTTP::UserAgent", "IO::Socket::SSL", "JSON::Tiny" ],
+    "depends"       : [ "MIME::Base64", "URI", "HTTP::UserAgent", "IO::Socket::SSL", "JSON::Fast" ],
     "provides" : {
         "WebService::GitHub"    : "lib/WebService/GitHub.pm"
     },

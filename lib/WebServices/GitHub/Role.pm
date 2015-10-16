@@ -2,7 +2,7 @@ use v6;
 
 use URI;
 use MIME::Base64;
-use JSON::Tiny; # from-json
+use JSON::Fast; # from-json
 use HTTP::Request;
 use HTTP::UserAgent;
 use WebServices::GitHub::Response;

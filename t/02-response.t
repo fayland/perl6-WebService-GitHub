@@ -13,4 +13,11 @@ is $response.x-ratelimit-limit, 10;
 is $response.x-ratelimit-remaining, 9;
 is $response.x-ratelimit-reset, 1445000633;
 
+my $item = $response.next;
+is $item<full_name>, "chef-cookbooks/perl";
+$item = $response.next;
+is $item<full_name>, "schacon/perl";
+$item = $response.next;
+is $item<full_name>, "abaez/perl";
+
 done-testing();
