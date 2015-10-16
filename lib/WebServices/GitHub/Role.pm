@@ -16,11 +16,20 @@ role WebServices::GitHub::Role {
     has $.useragent = 'perl6-WebService-GitHub/0.1.0';
     has $.ua = HTTP::UserAgent.new;
 
+    # request args
+    has $.per_page;
+    has $.jsonp_callback;
+
+    # response args
+    has $.auto_pagination = 0;
+
     has %.role_data;
 
     method request(Str $path, $method='GET', :$data) {
         my $uri = URI.new($.endpoint ~ $path);
-        if ($method eq 'GET' and $data) {
+        if ($method eq 'GET') {
+            $data<per_page> = $.per_page if $.per_page.defined;
+            $data<callback> = $.jsonp_callback if $.jsonp_callback.defined;
             $uri.query_form($data);
         }
 
@@ -49,7 +58,10 @@ role WebServices::GitHub::Role {
         my $res = $.ua.request($request);
         $res = $.handle_response($res);
 
-        return WebServices::GitHub::Response.new(raw => $res);
+        return WebServices::GitHub::Response.new(
+            raw => $res,
+            auto_pagination => $.auto_pagination,
+        );
     }
 
     # for role override
