@@ -18,3 +18,4 @@ my $auth = $gh.create_authorization(
     :note<test purpose>
 ).data;
 say $auth.perl;
+say $auth<token>;

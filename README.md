@@ -29,49 +29,49 @@ Patches welcome
 
 ## Args
 
-#### `endpoint`
+ * `endpoint`
 
 useful for GitHub Enterprise. default to L<https://api.github.com>
 
-#### `access-token`
+ * `access-token`
 
 Required for Authorized API Request
 
-#### `auth_login` & `auth_password`
+ * `auth_login` & `auth_password`
 
 Basic Authenticaation. useful to get `access-token`.
 
-#### `per_page`
+ * `per_page`
 
 from [Doc](https://developer.github.com/v3/#pagination), default to 30, max to 100.
 
-#### `jsonp_callback`
+ * `jsonp_callback`
 
 [JSONP Callback](https://developer.github.com/v3/#json-p-callbacks)
 
-#### `time-zone`
+ * `time-zone`
 
 UTC by default, [Doc](https://developer.github.com/v3/#timezones)
 
 ## Response
 
-#### `raw`
+ * `raw`
 
-HTTP::Request instance
+HTTP::Response instance
 
-#### `data`
+ * `data`
 
 JSON decoded data
 
-#### `header(Str $field)`
+ * `header(Str $field)`
 
 Get header of HTTP Response
 
-#### `first-page-url`, `prev-page-url`, `next-page-url`, `last-page-url`
+ * `first-page-url`, `prev-page-url`, `next-page-url`, `last-page-url`
 
 Parsed from Link header, [Doc](https://developer.github.com/v3/#pagination)
 
-#### `x-ratelimit-limit`, `x-ratelimit-remaining`, `x-ratelimit-reset`
+ * `x-ratelimit-limit`, `x-ratelimit-remaining`, `x-ratelimit-reset`
 
 [Rate Limit](https://developer.github.com/v3/#rate-limiting)
 
@@ -85,3 +85,23 @@ Parsed from Link header, [Doc](https://developer.github.com/v3/#pagination)
     my $user = $gh.request('/users/fayland').data;
     say $user<name>;
 
+## OAuth
+
+### get token from user/login
+
+[examples/create_access_token.pl](examples/create_access_token.pl)
+
+```perl6
+use WebServices::GitHub::OAuth;
+
+my $gh = WebServices::GitHub::OAuth.new(
+    auth_login => 'username',
+    auth_password => 'password'
+);
+
+my $auth = $gh.create_authorization(
+    :scopes(['user', 'public_repo', 'repo', 'gist']), # just ['public_repo']
+    :note<test purpose>
+).data;
+say $auth<token>;
+```
