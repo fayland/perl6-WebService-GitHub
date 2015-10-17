@@ -43,7 +43,7 @@ role WebServices::GitHub::Role {
         my $uri = URI.new($url);
         my $request = HTTP::Request.new(|($method => $uri));
         $request.header.field(User-Agent => $.useragent);
-        if $.media-type:defined {
+        if $.media-type.defined {
             $request.header.field(Accept => $.media-type);
         } else {
             $request.header.field(Accept => 'application/vnd.github.v3+json');

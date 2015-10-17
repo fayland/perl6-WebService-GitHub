@@ -98,7 +98,6 @@ my $data = $search.repositories({
     :sort<stars>,
     :order<desc>
 }).data;
-ok $data<total_count> > 1000;
 ```
 
 ## OAuth
@@ -133,7 +132,7 @@ my $gist = WebServices::GitHub::Gist.new(
     access-token => %*ENV<GITHUB_ACCESS_TOKEN>
 );
 
-my $res = $gist.create_gist({
+my $data = $gist.create_gist({
     description => 'Test from perl6 WebServices::GitHub::Gist',
     public => True,
     files => {
@@ -141,21 +140,20 @@ my $res = $gist.create_gist({
             content => "Created on " ~ now
         }
     }
-});
-my $data = $res.data;
+}).data;
 say $data<url>;
 ```
 
 ### update gist
 
 ```
-$res = $gist.update_gist($id, {
+$data = $gist.update_gist($id, {
     files => {
         "test_another.txt" => {
             content => "Updated on " ~ now
         }
     }
-});
+}).data;
 ```
 
 ### delete gist
