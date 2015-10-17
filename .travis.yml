@@ -6,5 +6,4 @@ perl6:
 install:
     - rakudobrew build-panda
     - panda installdeps .
-    - curl https://api.github.com/users/fayland -v
     # - env

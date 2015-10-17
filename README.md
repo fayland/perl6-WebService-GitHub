@@ -105,3 +105,46 @@ my $auth = $gh.create_authorization({
 }).data;
 say $auth<token>;
 ```
+
+## Gist
+
+### create a gist
+
+```
+use WebServices::GitHub::Gist;
+
+my $gist = WebServices::GitHub::Gist.new(
+    access-token => %*ENV<GITHUB_ACCESS_TOKEN>
+);
+
+my $res = $gist.create_gist({
+    description => 'Test from perl6 WebServices::GitHub::Gist',
+    public => True,
+    files => {
+        'test.txt' => {
+            content => "Created on " ~ now
+        }
+    }
+});
+my $data = $res.data;
+say $data<url>;
+```
+
+### update gist
+
+```
+$res = $gist.update_gist($id, {
+    files => {
+        "test_another.txt" => {
+            content => "Updated on " ~ now
+        }
+    }
+});
+```
+
+### delete gist
+
+```
+$res = $gist.delete_gist($id);
+say 'Deleted' if $res.is-success;
+```
