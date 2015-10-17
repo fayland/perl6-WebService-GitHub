@@ -13,9 +13,8 @@ my $gh = WebServices::GitHub::OAuth.new(
 use WebServices::GitHub::Role::Debug;
 $gh does WebServices::GitHub::Role::Debug;
 
-my $auth = $gh.create_authorization(
+my $auth = $gh.create_authorization({
     :scopes(['user', 'public_repo', 'repo', 'gist']), # just ['public_repo']
-    :note<test purpose>
-).data;
-say $auth.perl;
+    :note<'test purpose'>
+}).data;
 say $auth<token>;

@@ -31,7 +31,7 @@ Patches welcome
 
  * `endpoint`
 
-useful for GitHub Enterprise. default to L<https://api.github.com>
+useful for GitHub Enterprise. default to https://api.github.com
 
  * `access-token`
 
@@ -99,9 +99,9 @@ my $gh = WebServices::GitHub::OAuth.new(
     auth_password => 'password'
 );
 
-my $auth = $gh.create_authorization(
+my $auth = $gh.create_authorization({
     :scopes(['user', 'public_repo', 'repo', 'gist']), # just ['public_repo']
-    :note<test purpose>
-).data;
+    :note<'test purpose'>
+}).data;
 say $auth<token>;
 ```

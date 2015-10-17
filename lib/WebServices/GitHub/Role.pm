@@ -26,12 +26,12 @@ role WebServices::GitHub::Role {
 
     has %.role_data;
 
-    method request(Str $path, $method='GET', :%data) {
+    method request(Str $path, $method='GET', :%data is copy) {
         my $uri = URI.new($.endpoint ~ $path);
         if ($method eq 'GET') {
             %data<per_page> = $.per_page if $.per_page.defined;
             %data<callback> = $.jsonp_callback if $.jsonp_callback.defined;
-            $uri.query_form(|%data);
+            $uri.query_form(%data);
         }
 
         my $request = HTTP::Request.new;
@@ -57,8 +57,8 @@ role WebServices::GitHub::Role {
         }
 
         if ($method ne 'GET' and %data) {
-            $request.content(to-json(%data));
-            $request.header.field(Content-Length => $request.content.length);
+            $request.content = to-json(%data);
+            $request.header.field(Content-Length => $request.content.chars);
         }
 
         $request = $.prepare_request($request);
