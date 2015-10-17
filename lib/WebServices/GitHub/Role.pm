@@ -1,6 +1,7 @@
 use v6;
 
 use URI;
+use URI::Escape;
 use MIME::Base64;
 use JSON::Fast; # from-json
 use HTTP::Request;
@@ -20,6 +21,7 @@ role WebServices::GitHub::Role {
     has $.per_page;
     has $.jsonp_callback;
     has $.time-zone;
+    has $.media-type is rw;
 
     # response args
     has $.auto_pagination = 0;
@@ -27,18 +29,25 @@ role WebServices::GitHub::Role {
     has %.role_data;
 
     method request(Str $path, $method='GET', :%data is copy) {
-        my $uri = URI.new($.endpoint ~ $path);
+        my $url = $.endpoint ~ $path;
         if ($method eq 'GET') {
             %data<per_page> = $.per_page if $.per_page.defined;
             %data<callback> = $.jsonp_callback if $.jsonp_callback.defined;
-            $uri.query_form(|%data);
+            # dummy, not supported
+            # $uri.query_form(|%data);
+            $url ~= '?' ~ (for %data.kv -> $k, $v {
+                $k ~ '=' ~ uri-escape($v)
+            }).join('&') if %data.elems;
         }
 
-        my $request = HTTP::Request.new;
-        $request.set-method($method);
-        $request.uri($uri);
+        my $uri = URI.new($url);
+        my $request = HTTP::Request.new(|($method => $uri));
         $request.header.field(User-Agent => $.useragent);
-        $request.header.field(Accept => 'application/vnd.github.v3+json');
+        if $.media-type:defined {
+            $request.header.field(Accept => $.media-type);
+        } else {
+            $request.header.field(Accept => 'application/vnd.github.v3+json');
+        }
 
         if $.time-zone.defined {
             $request.header.field(

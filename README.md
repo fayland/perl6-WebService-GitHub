@@ -81,9 +81,25 @@ Parsed from Link header, [Doc](https://developer.github.com/v3/#pagination)
 
 ### get user info
 
-    my $gh = WebServices::GitHub.new;
-    my $user = $gh.request('/users/fayland').data;
-    say $user<name>;
+```
+my $gh = WebServices::GitHub.new;
+my $user = $gh.request('/users/fayland').data;
+say $user<name>;
+```
+
+### search repositories
+
+```
+use WebServices::GitHub::Search;
+
+my $search = WebServices::GitHub::Search.new;
+my $data = $search.repositories({
+    :q<perl6>,
+    :sort<stars>,
+    :order<desc>
+}).data;
+ok $data<total_count> > 1000;
+```
 
 ## OAuth
 
