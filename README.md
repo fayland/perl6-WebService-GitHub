@@ -4,7 +4,7 @@
 
 *ALPHA STAGE, SUBJECT TO CHANGE*
 
-# SYNOPSIS
+## SYNOPSIS
 
     use WebServices::GitHub;
 
@@ -15,7 +15,7 @@
     my $res = $gh.request('/user');
     say $res.data.name;
 
-# TODO
+## TODO
 
 Patches welcome
 
@@ -25,9 +25,9 @@ Patches welcome
  * Auto Pagination
  * API Throttle
 
-# Methods
+## Methods
 
-## Args
+### Args
 
  * `endpoint`
 
@@ -53,7 +53,7 @@ from [Doc](https://developer.github.com/v3/#pagination), default to 30, max to 1
 
 UTC by default, [Doc](https://developer.github.com/v3/#timezones)
 
-## Response
+### Response
 
  * `raw`
 
@@ -75,11 +75,11 @@ Parsed from Link header, [Doc](https://developer.github.com/v3/#pagination)
 
 [Rate Limit](https://developer.github.com/v3/#rate-limiting)
 
-# Examples
+## Examples
 
-## Public Access without access-token
+### Public Access without access-token
 
-### get user info
+#### get user info
 
 ```
 my $gh = WebServices::GitHub.new;
@@ -87,7 +87,7 @@ my $user = $gh.request('/users/fayland').data;
 say $user<name>;
 ```
 
-### search repositories
+#### search repositories
 
 ```
 use WebServices::GitHub::Search;
@@ -100,9 +100,9 @@ my $data = $search.repositories({
 }).data;
 ```
 
-## OAuth
+### OAuth
 
-### get token from user/login
+#### get token from user/login
 
 [examples/create_access_token.pl](examples/create_access_token.pl)
 
@@ -121,9 +121,9 @@ my $auth = $gh.create_authorization({
 say $auth<token>;
 ```
 
-## Gist
+### Gist
 
-### create a gist
+#### create a gist
 
 ```
 use WebServices::GitHub::Gist;
@@ -144,7 +144,7 @@ my $data = $gist.create_gist({
 say $data<url>;
 ```
 
-### update gist
+#### update gist
 
 ```
 $data = $gist.update_gist($id, {
@@ -156,7 +156,7 @@ $data = $gist.update_gist($id, {
 }).data;
 ```
 
-### delete gist
+#### delete gist
 
 ```
 $res = $gist.delete_gist($id);
