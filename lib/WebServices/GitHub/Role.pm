@@ -31,7 +31,7 @@ role WebServices::GitHub::Role {
         if ($method eq 'GET') {
             %data<per_page> = $.per_page if $.per_page.defined;
             %data<callback> = $.jsonp_callback if $.jsonp_callback.defined;
-            $uri.query_form(%data);
+            $uri.query_form(|%data);
         }
 
         my $request = HTTP::Request.new;
