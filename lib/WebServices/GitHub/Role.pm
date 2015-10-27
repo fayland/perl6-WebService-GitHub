@@ -66,8 +66,8 @@ role WebServices::GitHub::Role {
         }
 
         if ($method ne 'GET' and %data) {
-            $request.content = to-json(%data);
-            $request.header.field(Content-Length => $request.content.chars);
+            $request.content = to-json(%data).encode;
+            $request.header.field(Content-Length => $request.content.bytes.Str);
         }
 
         $request = $.prepare_request($request);
