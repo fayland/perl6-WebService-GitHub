@@ -32,6 +32,10 @@ class WebServices::GitHub::Users does WebServices::GitHub::Role {
       self.request('/user/emails'); 
     }
 
+    method is_following($id) { 
+      self.request('/user/following/' ~ $id);
+    }
+
     method follow($id) { 
       self.request('/user/following/' ~ $id, 'PUT');
     }
