@@ -74,10 +74,21 @@ role WebServices::GitHub::Role {
         my $res = $.ua.request($request);
         $res = $.handle_response($res);
 
-        return WebServices::GitHub::Response.new(
-            raw => $res,
-            auto_pagination => $.auto_pagination,
+        my $ghres = WebServices::GitHub::Response.new(
+          raw => $res,
+          auto_pagination => $.auto_pagination,
         );
+
+        if (!$ghres.is-success && $ghres.data<message>) {
+          my $message = $ghres.data<message>;
+          my $errors =  $ghres.data<errors>;
+          if ($errors[0]{"message"}) {
+            $message = $message ~ ' - ' ~ $errors[0]{"message"};
+          }
+          die $message;
+        }
+
+        return $ghres;
     }
 
     # for role override
