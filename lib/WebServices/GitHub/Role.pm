@@ -8,6 +8,14 @@ use HTTP::Request;
 use HTTP::UserAgent;
 use WebServices::GitHub::Response;
 
+class X::WebServices::GitHub is Exception {
+  has $.reason;
+  method message()
+  {
+    "Error : $.reason";
+  }
+}
+
 role WebServices::GitHub::Role {
     has $.endpoint = 'https://api.github.com';
     has $.access-token;
@@ -85,7 +93,7 @@ role WebServices::GitHub::Role {
           if ($errors[0]{"message"}) {
             $message = $message ~ ' - ' ~ $errors[0]{"message"};
           }
-          die $message;
+          X::WebServices::GitHub.new(reason => $message).throw;
         }
 
         return $ghres;
