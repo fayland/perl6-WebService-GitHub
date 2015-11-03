@@ -9,6 +9,14 @@ use HTTP::Request;
 use HTTP::UserAgent;
 use WebServices::GitHub::Response;
 
+class X::WebServices::GitHub is Exception {
+  has $.reason;
+  method message()
+  {
+    "Error : $.reason";
+  }
+}
+
 role WebServices::GitHub::Role {
     has $.endpoint = 'https://api.github.com';
     has $.access-token;
@@ -77,10 +85,21 @@ role WebServices::GitHub::Role {
         my $res = self._make_request($request);
         $res = $.handle_response($res);
 
-        return WebServices::GitHub::Response.new(
-            raw => $res,
-            auto_pagination => $.auto_pagination,
+        my $ghres = WebServices::GitHub::Response.new(
+          raw => $res,
+          auto_pagination => $.auto_pagination,
         );
+
+        if (!$ghres.is-success && $ghres.data<message>) {
+          my $message = $ghres.data<message>;
+          my $errors =  $ghres.data<errors>;
+          if ($errors[0]{"message"}) {
+            $message = $message ~ ' - ' ~ $errors[0]{"message"};
+          }
+          X::WebServices::GitHub.new(reason => $message).throw;
+        }
+
+        return $ghres;
     }
 
     method _make_request($request) {
