@@ -37,7 +37,21 @@ role WebServices::GitHub::Role {
     # response args
     has $.auto_pagination = 0;
 
+    has @.with = ();
     has %.role_data;
+
+    # b/c there is no method for after BUILD?
+    method new(*%args is copy) {
+        self.bless(|%args)!initialize;
+    }
+    method !initialize {
+        for @.with -> $n {
+            my $class = "WebServices::GitHub::Role::$n";
+            require ::($class);
+            self does ::($class);
+        }
+        self;
+    }
 
     method request(Str $path, $method='GET', :%data is copy) {
         my $url = $.endpoint ~ $path;
