@@ -41,10 +41,12 @@ role WebServices::GitHub::Role {
     has %.role_data;
 
     submethod BUILD(*%args) {
-        for %args<with> -> $n {
-            my $class = "WebServices::GitHub::Role::$n";
-            require ::($class);
-            self does ::($class);
+        if %args<with>:exists {
+            for %args<with> -> $n {
+                my $class = "WebServices::GitHub::Role::$n";
+                require ::($class);
+                self does ::($class);
+            }
         }
     }
 
