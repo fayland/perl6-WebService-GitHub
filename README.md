@@ -1,6 +1,6 @@
 # perl6-WebService-GitHub
 
-[![Build Status](https://travis-ci.org/fayland/perl6-WebService-GitHub.svg?branch=master)](https://travis-ci.org/fayland/perl6-WebService-GitHub)
+[![Build Status](https://travis-ci.org/tbrowde/perl6-WebService-GitHub.svg?branch=master)](https://travis-ci.org/tbrowder/perl6-WebService-GitHub)
 
 *ALPHA STAGE, SUBJECT TO CHANGE*
 
