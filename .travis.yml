@@ -5,4 +5,5 @@ perl6:
 
 install:
     - rakudobrew build-zef
+    - zef --force install HTTP::UserAgent
     - zef --deps-only install .
