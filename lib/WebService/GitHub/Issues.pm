@@ -26,8 +26,8 @@ class WebService::GitHub::Issues does WebService::GitHub::Role {
 	    my $this-issue = self.single-issue( repo => $repo, issue => $i<number> ).data;
 	    say $i;
 	    for $this-issue.kv -> $k, $value { # merge issues
-		say $k, $value;
 		if ( ! $i<$k> ) {
+		    say "$k → $value";
 		    $i<$k> = $value;
 		}
 	    }
