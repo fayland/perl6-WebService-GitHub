@@ -51,7 +51,6 @@ role WebService::GitHub::Role {
     }
 
     method request(Str $path, $method='GET', :%data is copy) {
-	say "Path → $path";
         my $url = $.endpoint ~ $path;
         if ($method eq 'GET') {
             %data<per_page> = $.per_page if $.per_page.defined;
