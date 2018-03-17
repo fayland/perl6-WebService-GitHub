@@ -21,13 +21,9 @@ class WebService::GitHub::Issues does WebService::GitHub::Role {
 	my @issue-data;
 	for @issues -> $i {
 	    die "Limit exceeded, please use auth" if !rate-limit-remaining();
-	    say "This element → ", $i;
-	    say "Issue # ", $i<number>;
 	    my $this-issue = self.single-issue( repo => $repo, issue => $i<number> ).data;
-	    say $i;
 	    for $this-issue.kv -> $k, $value { # merge issues
 		if ( ! $i<$k> ) {
-		    say "$k → $value";
 		    $i<$k> = $value;
 		}
 	    }
