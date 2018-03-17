@@ -16,10 +16,20 @@ class WebService::GitHub::Issues does WebService::GitHub::Role {
     }
 
     method all-issues(Str $repo ) {
-	my $issues = self.show( repo => $repo, state => 'all' );
+	my $issues = self.show( repo => $repo, state => 'all' ).data;
 	my @issues;
 	for $issues -> $i {
-	    
+	    say $i<number>;
+	    my $this-issue = self.single-issue( $repo, $i<number> ).data;
+	    say $i;
+	    for $this-issue.kv -> $k, $value { # merge issues
+		say $k, $value;
+		if ( ! $i<$k> ) {
+		    $i<$k> = $value;
+		}
+	    }
+	    @issues< $i<number> > = $i;
+
 	}
     }
 }
