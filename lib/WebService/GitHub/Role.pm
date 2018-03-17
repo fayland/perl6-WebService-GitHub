@@ -19,7 +19,7 @@ class X::WebService::GitHub is Exception {
 
 role WebService::GitHub::Role {
     has $.endpoint = 'https://api.github.com';
-    has $.access-token;
+    has $.access-token= %*ENV<GH_TOKEN>;
     has $.auth_login;
     has $.auth_password;
 
@@ -48,6 +48,9 @@ role WebService::GitHub::Role {
                 self does ::($class);
             }
         }
+	for %args.kv -> $k, $value {
+	    self."$k"( $value );
+	}
     }
 
     method request(Str $path, $method='GET', :%data is copy) {

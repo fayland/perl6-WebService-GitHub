@@ -34,5 +34,6 @@ class WebService::GitHub::Issues does WebService::GitHub::Role {
 	    @issue-data[ $i<number> ] = $i;
 
 	}
+	return @issue-data;
     }
 }
