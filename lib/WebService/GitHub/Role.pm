@@ -48,9 +48,10 @@ role WebService::GitHub::Role {
                 self does ::($class);
             }
         }
-	for %args.kv -> $k, $value {
-	    self."$k"( $value );
-	}
+# does not work
+#	for %args.kv -> $k, $value {
+#	    self."$k"( $value );
+#	}
     }
 
     method request(Str $path, $method='GET', :%data is copy) {

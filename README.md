@@ -8,9 +8,8 @@
 
     use WebService::GitHub;
 
-    my $gh = WebService::GitHub.new(
-        access-token => 'my-access-token'
-    );
+	# It will use GH_TOKEN as access token, if it's present
+    my $gh = WebService::GitHub.new;
 
     my $res = $gh.request('/user');
     say $res.data.name;
@@ -19,8 +18,8 @@
 
 Patches welcome
 
- * Break down modules (Users, Repos, Issues etc.)
- * Errors Handle
+ * Break down modules (Users, Repos, etc.)
+ * Handle Errors
  * Auto Pagination
  * API Throttle
 
@@ -34,7 +33,7 @@ Useful for GitHub Enterprise. Default to https://api.github.com
 
  * `access-token`
 
-Required for Authorized API Request
+Required for Authorized API Request. 
 
  * `auth_login` & `auth_password`
 
