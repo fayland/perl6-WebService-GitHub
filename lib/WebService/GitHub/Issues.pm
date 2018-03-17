@@ -1,5 +1,6 @@
 use v6;
 
+use WebService::GitHub;
 use WebService::GitHub::Role;
 
 class WebService::GitHub::Issues does WebService::GitHub::Role {
@@ -16,11 +17,14 @@ class WebService::GitHub::Issues does WebService::GitHub::Role {
     }
 
     method all-issues(Str $repo ) {
-	my $issues = self.show( repo => $repo, state => 'all' ).data;
-	my @issues;
-	for $issues -> $i {
+	my @issues = self.show( repo => $repo, state => 'all' ).data.list;
+	my @issue-data;
+	say @issues;
+	for @issues -> $i {
+	    say "Limit → ", rate-limit-remaining();
+	    say $i;
 	    say $i<number>;
-	    my $this-issue = self.single-issue( $repo, $i<number> ).data;
+	    my $this-issue = self.single-issue( repo => $repo, issue => $i<number> ).data;
 	    say $i;
 	    for $this-issue.kv -> $k, $value { # merge issues
 		say $k, $value;
@@ -28,7 +32,7 @@ class WebService::GitHub::Issues does WebService::GitHub::Role {
 		    $i<$k> = $value;
 		}
 	    }
-	    @issues< $i<number> > = $i;
+	    @issue-data[ $i<number> ] = $i;
 
 	}
     }
