@@ -3,6 +3,9 @@ use v6;
 use WebService::GitHub;
 use WebService::GitHub::Role;
 
+use Data::Dump::Tree; # delete if you've finished debugging.
+
+
 class WebService::GitHub::Issues does WebService::GitHub::Role {
 
     method show(Str :$repo!, Str :$state = "open") {
@@ -13,12 +16,12 @@ class WebService::GitHub::Issues does WebService::GitHub::Role {
     }
 
     method single-issue(Str :$repo, Int :$issue ) {
-	say "Issue $issue\n";
 	self.request('/repos/' ~ $repo ~ '/issues/' ~ $issue ).data[0];
     }
 
     method all-issues(Str $repo ) {
-	my @issues = self.show( repo => $repo, state => 'all' ).data.list;
+	my @issues = self.show( repo => $repo, state => 'all' ).Array;
+#	say "Elems ", @issues.elems;
 	my @issue-data;
 	for @issues -> $issue {
 	    die "Limit exceeded, please use auth" if !rate-limit-remaining();

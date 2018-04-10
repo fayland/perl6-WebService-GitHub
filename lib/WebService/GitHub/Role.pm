@@ -8,7 +8,6 @@ use Cache::LRU;
 use HTTP::Request;
 use HTTP::UserAgent;
 use WebService::GitHub::Response;
-use Data::Dump::Tree; # delete if you've finished debugging.
 
 class X::WebService::GitHub is Exception {
   has $.reason;
@@ -81,23 +80,22 @@ role WebService::GitHub::Role {
 
         # Do stuff if there's pagination
         my $results = [$res];
-	say $results.^name;
+#	say $results.^name;
         if my @links = $res.header.fields.grep( {.name eq 'Link'}) {
-	    say "We've got pages";
+#	    say "We've got pages";
             @links[0].values[1] ~~ / \< $<url> = .+ \&page/;
             my $api-url= $<url>; # Not  persistent, apparently
             @links[0].values[1] ~~ / page \= $<last-page> = [ \d+ ] /;
             for 2..$<last-page> -> $page {
               $request = $.prepare_request( $._build_request( $method, $api-url ~ "&page=$page" ));
               my $this-res = self._make_request($request);
-	      say "This res";
-	      ddt $this-res;
+#	      say "This res";
+#	      ddt $this-res;
 	      $this-res = $.handle_response($this-res);
 	      $results.push: $this-res;
             }
         }
 
-	ddt $results;
         my $ghres = WebService::GitHub::Response.new(
             raw => $results,
             auto_pagination => $.auto_pagination,
