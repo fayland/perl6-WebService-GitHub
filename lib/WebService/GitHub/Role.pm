@@ -49,10 +49,6 @@ role WebService::GitHub::Role {
             }
         }
 
-# does not work
-#   for %args.kv -> $k, $value {
-#       self."$k"( $value );
-#   }
         # backwards
         $!access-token  = %args<access-token>  if %args<access-token>:exists;
         $!auth_login    = %args<auth_login>    if %args<auth_login>:exists;
@@ -72,57 +68,34 @@ role WebService::GitHub::Role {
             }).join('&') if %data.elems;
         }
 
-        my $uri = URI.new($url);
-        my $request = HTTP::Request.new(|($method => $uri));
-        $request.header.field(User-Agent => $.useragent);
-        if $.media-type.defined {
-            $request.header.field(Accept => $.media-type);
-        } else {
-            $request.header.field(Accept => 'application/vnd.github.v3+json');
-        }
-
-        if $.time-zone.defined {
-            $request.header.field(
-                Time-Zone => $.time-zone
-            );
-        }
-
-        if $.auth_login.defined && $.auth_password.defined {
-            $request.header.field(
-                Authorization => "Basic " ~ MIME::Base64.encode-str("{$.auth_login}:{$.auth_password}")
-            );
-        } elsif ($.access-token) {
-            $request.header.field(
-                Authorization => "token " ~ $.access-token
-            );
-        }
-
-        if ($method ne 'GET' and %data) {
+        my $request = $.prepare_request( $.build_request( $method, $url ));
+	if ($method ne 'GET' and %data) {
             $request.content = to-json(%data).encode;
             $request.header.field(Content-Length => $request.content.bytes.Str);
         }
 
-        $request = $.prepare_request($request);
         my $res = self._make_request($request);
 	      $res = $.handle_response($res);
 
         # Do stuff if there's pagination
         my @results = ($res);
         if  my @links = $res.header.fields.grep( {.name eq 'Link'}) {
+          @links[0].values[1] ~~ / \< $<url> = .+ \&page/;
+          my $api-url= $<url>; # Not persistent, apparently
           @links[0].values[1] ~~ / page \= $<last-page> = [ \d+ ] /;
           say @links[0].values[1], " captures ", $<last-page>;
           for 2..$<last-page> -> $page {
-              my $this-request = HTTP::Request.new(|($method => URI.new($url ~ "&page=$page" )));
-              $request = $.prepare_request($this-request);
+              $request = $.prepare_request( $.build_request( $method, $api-url ~ "&page=$page" ));
+	      say $request;
               my $this-res = self._make_request($request);
-	            $this-res = $.handle_response($this-res);
+	      $this-res = $.handle_response($this-res);
               say "\n→ Result ", $this-res.perl;
           }
         }
 
         my $ghres = WebService::GitHub::Response.new(
-          raw => $res,
-          auto_pagination => $.auto_pagination,
+            raw => $res,
+            auto_pagination => $.auto_pagination,
         );
         if (!$ghres.is-success && $ghres.data<message>) {
           my $message = $ghres.data<message>;
@@ -166,6 +139,35 @@ role WebService::GitHub::Role {
     }
 
     # for role override
+    method build_request($method, $url ) {
+	my $uri = URI.new($url);
+        my $request = HTTP::Request.new(|($method => $uri));
+        $request.header.field(User-Agent => $.useragent);
+        if $.media-type.defined {
+            $request.header.field(Accept => $.media-type);
+        } else {
+            $request.header.field(Accept => 'application/vnd.github.v3+json');
+        }
+
+        if $.time-zone.defined {
+            $request.header.field(
+                Time-Zone => $.time-zone
+            );
+        }
+
+        if $.auth_login.defined && $.auth_password.defined {
+            $request.header.field(
+                Authorization => "Basic " ~ MIME::Base64.encode-str("{$.auth_login}:{$.auth_password}")
+            );
+        } elsif ($.access-token) {
+            $request.header.field(
+                Authorization => "token " ~ $.access-token
+            );
+        }
+	return $request;
+
+    }
+    
     method prepare_request($request) { return $request }
     method handle_response($response) { return $response }
 }
