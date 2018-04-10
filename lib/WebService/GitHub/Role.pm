@@ -68,7 +68,7 @@ role WebService::GitHub::Role {
             }).join('&') if %data.elems;
         }
 
-        my $request = $.prepare_request( $.build_request( $method, $url ));
+        my $request = $.prepare_request( $._build_request( $method, $url ));
 	if ($method ne 'GET' and %data) {
             $request.content = to-json(%data).encode;
             $request.header.field(Content-Length => $request.content.bytes.Str);
@@ -85,7 +85,7 @@ role WebService::GitHub::Role {
           @links[0].values[1] ~~ / page \= $<last-page> = [ \d+ ] /;
           say @links[0].values[1], " captures ", $<last-page>;
           for 2..$<last-page> -> $page {
-              $request = $.prepare_request( $.build_request( $method, $api-url ~ "&page=$page" ));
+              $request = $.prepare_request( $._build_request( $method, $api-url ~ "&page=$page" ));
 	      say $request;
               my $this-res = self._make_request($request);
 	      $this-res = $.handle_response($this-res);
@@ -138,8 +138,7 @@ role WebService::GitHub::Role {
         }
     }
 
-    # for role override
-    method build_request($method, $url ) {
+    method _build_request($method, $url ) {
 	my $uri = URI.new($url);
         my $request = HTTP::Request.new(|($method => $uri));
         $request.header.field(User-Agent => $.useragent);
@@ -167,7 +166,8 @@ role WebService::GitHub::Role {
 	return $request;
 
     }
-    
+
+    # for role override
     method prepare_request($request) { return $request }
     method handle_response($response) { return $response }
 }
