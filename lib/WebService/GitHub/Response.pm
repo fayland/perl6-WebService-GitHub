@@ -12,12 +12,17 @@ class WebService::GitHub::Response {
 	for $.raw -> $results {
 	    say to-json(from-json($results.content));
 	    my $content =  from-json($results.content);
-	    say "elems in this result -> ", $content.elems;
-	    say $content.^name;
-	    say "First element";
-	    ddt $content[0];
-	    ddt $content;
-            $data.append: $content.Array;
+	    say "This content is ", $content.^name;
+	    # say "elems in this result -> ", $content.elems;
+	    # say $content.^name;
+	    # say "First element";
+	    # ddt $content[0];
+	    # ddt $content;
+	    if $content ~~ Array {
+		$data.append: $content.Array;
+	    } else {
+		$data.append: $content;
+	    }
 	    say "Elems in data→ ", $data.elems;
 	}
 	return $data;

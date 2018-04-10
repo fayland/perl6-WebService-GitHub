@@ -8,6 +8,7 @@ use Cache::LRU;
 use HTTP::Request;
 use HTTP::UserAgent;
 use WebService::GitHub::Response;
+use Data::Dump::Tree; # delete if you've finished debugging.
 
 class X::WebService::GitHub is Exception {
   has $.reason;
@@ -58,6 +59,7 @@ role WebService::GitHub::Role {
 
     method request(Str $path, $method='GET', :%data is copy) {
         my $url = $.endpoint ~ $path;
+	say "URL in request: $url";
         if ($method eq 'GET') {
             %data<per_page> = $.per_page if $.per_page.defined;
             %data<callback> = $.jsonp_callback if $.jsonp_callback.defined;
@@ -75,23 +77,24 @@ role WebService::GitHub::Role {
         }
 
         my $res = self._make_request($request);
-	      $res = $.handle_response($res);
+	$res = $.handle_response($res);
 
         # Do stuff if there's pagination
         my $results = ($res);
         if my @links = $res.header.fields.grep( {.name eq 'Link'}) {
 	    say "We've got pages";
             @links[0].values[1] ~~ / \< $<url> = .+ \&page/;
-          my $api-url= $<url>; # Not  persistent, apparently
-          @links[0].values[1] ~~ / page \= $<last-page> = [ \d+ ] /;
-          for 2..$<last-page> -> $page {
+            my $api-url= $<url>; # Not  persistent, apparently
+            @links[0].values[1] ~~ / page \= $<last-page> = [ \d+ ] /;
+            for 2..$<last-page> -> $page {
               $request = $.prepare_request( $._build_request( $method, $api-url ~ "&page=$page" ));
               my $this-res = self._make_request($request);
 	      $this-res = $.handle_response($this-res);
 	      $results.push: $this-res;
-          }
+            }
         }
 
+	ddt $results;
         my $ghres = WebService::GitHub::Response.new(
             raw => $results,
             auto_pagination => $.auto_pagination,
