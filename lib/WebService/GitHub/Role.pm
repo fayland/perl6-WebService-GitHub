@@ -79,9 +79,10 @@ role WebService::GitHub::Role {
 
         # Do stuff if there's pagination
         my $results = ($res);
-        if  my @links = $res.header.fields.grep( {.name eq 'Link'}) {
-          @links[0].values[1] ~~ / \< $<url> = .+ \&page/;
-          my $api-url= $<url>; # Not persistent, apparently
+        if my @links = $res.header.fields.grep( {.name eq 'Link'}) {
+	    say "We've got pages";
+            @links[0].values[1] ~~ / \< $<url> = .+ \&page/;
+          my $api-url= $<url>; # Not  persistent, apparently
           @links[0].values[1] ~~ / page \= $<last-page> = [ \d+ ] /;
           for 2..$<last-page> -> $page {
               $request = $.prepare_request( $._build_request( $method, $api-url ~ "&page=$page" ));

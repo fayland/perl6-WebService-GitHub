@@ -1,17 +1,24 @@
 use v6;
 
 use JSON::Fast; # from-json
+use Data::Dump::Tree; # delete if you've finished debugging.
 
 class WebService::GitHub::Response {
     has $.raw;
 
     method data {
 	my $data;
+	say "-> Enters data";
 	for $.raw -> $results {
-	    say "Raw results → \n\n";
-	    from-json($results.content).perl ;
-            $data.append: from-json($results.content);
-	    say "Elems → ", $data.elems;
+	    say to-json(from-json($results.content));
+	    my $content =  from-json($results.content);
+	    say "elems in this result -> ", $content.elems;
+	    say $content.^name;
+	    say "First element";
+	    ddt $content[0];
+	    ddt $content;
+            $data.append: $content.Array;
+	    say "Elems in data→ ", $data.elems;
 	}
 	return $data;
     }

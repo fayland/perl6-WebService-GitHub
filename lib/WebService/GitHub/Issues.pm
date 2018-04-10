@@ -9,7 +9,7 @@ class WebService::GitHub::Issues does WebService::GitHub::Role {
 	die X::AdHoc.new("State does not exist").throw if $state ne "open"|"closed"|"all" ;
 	my $request = '/repos/' ~ $repo ~ '/issues';
 	my $payload = '?state='~$state;
-	self.request( $request ~ $payload ) ;
+	self.request( $request ~ $payload ).data;
     }
 
     method single-issue(Str :$repo, Int :$issue ) {
