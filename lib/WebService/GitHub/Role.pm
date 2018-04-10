@@ -92,7 +92,7 @@ role WebService::GitHub::Role {
         }
 
         my $ghres = WebService::GitHub::Response.new(
-            raw => $res,
+            raw => @results,
             auto_pagination => $.auto_pagination,
         );
         if (!$ghres.is-success && $ghres.data<message>) {

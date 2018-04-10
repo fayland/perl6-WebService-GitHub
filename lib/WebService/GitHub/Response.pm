@@ -6,7 +6,12 @@ class WebService::GitHub::Response {
     has $.raw;
 
     method data {
-        from-json($.raw.content);
+	my @data;
+	for $.raw -> $results {
+	    say $results;
+            @data.append: from-json($results.content);
+	}
+	return @data;
     }
 
     method header(Str $field) { $!raw.field($field).Str }
