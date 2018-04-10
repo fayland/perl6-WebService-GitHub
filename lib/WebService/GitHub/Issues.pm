@@ -21,7 +21,6 @@ class WebService::GitHub::Issues does WebService::GitHub::Role {
 
     method all-issues(Str $repo ) {
 	my @issues = self.show( repo => $repo, state => 'all' ).Array;
-#	say "Elems ", @issues.elems;
 	my @issue-data;
 	for @issues -> $issue {
 	    die "Limit exceeded, please use auth" if !rate-limit-remaining();

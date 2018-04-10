@@ -5,7 +5,7 @@ use WebService::GitHub::Users;
 ok(1);
 
 if ( (%*ENV<TRAVIS> && rate-limit-remaining()) || %*ENV<GH_TOKEN>  ) {
-    diag "running on travis or with token";
+    diag "running on Travis or with token";
     my $gh-user = WebService::GitHub::Users.new;
     my $user = $gh-user.show("JJ").data;
     is $user<login>, 'JJ', 'User login OK';
