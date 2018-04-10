@@ -9,7 +9,7 @@ class WebService::GitHub::Response {
     method data {
 	my $data;
 	say "-> Enters data";
-	for $.raw -> $results {
+	for $.raw.Array -> $results {
 	    say to-json(from-json($results.content));
 	    my $content =  from-json($results.content);
 	    say "This content is ", $content.^name;
