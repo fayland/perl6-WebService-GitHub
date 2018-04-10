@@ -62,7 +62,6 @@ role WebService::GitHub::Role {
 
     method request(Str $path, $method='GET', :%data is copy) {
         my $url = $.endpoint ~ $path;
-        say $url;
         if ($method eq 'GET') {
             %data<per_page> = $.per_page if $.per_page.defined;
             %data<callback> = $.jsonp_callback if $.jsonp_callback.defined;
@@ -113,8 +112,11 @@ role WebService::GitHub::Role {
           @links[0].values[1] ~~ / page \= $<last-page> = [ \d+ ] /;
           say @links[0].values[1], " captures ", $<last-page>;
           for 2..$<last-page> -> $page {
-              my $this-request = $request ~ "&page=$page";
-              say $this-request;
+              my $this-request = HTTP::Request.new(|($method => URI.new($url ~ "&page=$page" )));
+              $request = $.prepare_request($this-request);
+              my $this-res = self._make_request($request);
+	            $this-res = $.handle_response($this-res);
+              say "\n→ Result ", $this-res.perl;
           }
         }
 
