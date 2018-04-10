@@ -59,7 +59,7 @@ role WebService::GitHub::Role {
 
     method request(Str $path, $method='GET', :%data is copy) {
         my $url = $.endpoint ~ $path;
-	say "URL in request: $url";
+#	say "URL in request: $url";
         if ($method eq 'GET') {
             %data<per_page> = $.per_page if $.per_page.defined;
             %data<callback> = $.jsonp_callback if $.jsonp_callback.defined;
