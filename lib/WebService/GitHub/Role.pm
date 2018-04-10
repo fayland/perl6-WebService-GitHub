@@ -62,6 +62,7 @@ role WebService::GitHub::Role {
 
     method request(Str $path, $method='GET', :%data is copy) {
         my $url = $.endpoint ~ $path;
+        say $url;
         if ($method eq 'GET') {
             %data<per_page> = $.per_page if $.per_page.defined;
             %data<callback> = $.jsonp_callback if $.jsonp_callback.defined;
@@ -104,13 +105,23 @@ role WebService::GitHub::Role {
 
         $request = $.prepare_request($request);
         my $res = self._make_request($request);
-	        $res = $.handle_response($res);
+	      $res = $.handle_response($res);
+
+        # Do stuff if there's pagination
+        my @results = ($res);
+        if  my @links = $res.header.fields.grep( {.name eq 'Link'}) {
+          @links[0].values[1] ~~ / page \= $<last-page> = [ \d+ ] /;
+          say @links[0].values[1], " captures ", $<last-page>;
+          for 2..$<last-page> -> $page {
+              my $this-request = $request ~ "&page=$page";
+              say $this-request;
+          }
+        }
 
         my $ghres = WebService::GitHub::Response.new(
           raw => $res,
           auto_pagination => $.auto_pagination,
         );
-
         if (!$ghres.is-success && $ghres.data<message>) {
           my $message = $ghres.data<message>;
           my $errors =  $ghres.data<errors>;
