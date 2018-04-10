@@ -3,18 +3,21 @@ use v6;
 use JSON::Fast; # from-json
 
 class WebService::GitHub::Response {
-    has @.raw;
+    has $.raw;
 
     method data {
-	my @data;
-	for @.raw -> $results {
-            @data.append: from-json($results.content).list;
+	my $data;
+	for $.raw -> $results {
+	    say "Raw results → \n\n";
+	    from-json($results.content).perl ;
+            $data.append: from-json($results.content);
+	    say "Elems → ", $data.elems;
 	}
-	return @data;
+	return $data;
     }
 
-    method header(Str $field) { @!raw[0].field($field).Str }
-    method is-success { @!raw[0].is-success }
+    method header(Str $field) { $!raw[0].field($field).Str }
+    method is-success { $!raw[0].is-success }
 
     submethod get-link-header($rel) {
         state %link-header;

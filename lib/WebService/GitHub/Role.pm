@@ -78,7 +78,7 @@ role WebService::GitHub::Role {
 	      $res = $.handle_response($res);
 
         # Do stuff if there's pagination
-        my @results = ($res);
+        my $results = ($res);
         if  my @links = $res.header.fields.grep( {.name eq 'Link'}) {
           @links[0].values[1] ~~ / \< $<url> = .+ \&page/;
           my $api-url= $<url>; # Not persistent, apparently
@@ -87,12 +87,12 @@ role WebService::GitHub::Role {
               $request = $.prepare_request( $._build_request( $method, $api-url ~ "&page=$page" ));
               my $this-res = self._make_request($request);
 	      $this-res = $.handle_response($this-res);
-	      @results.push: $this-res;
+	      $results.push: $this-res;
           }
         }
 
         my $ghres = WebService::GitHub::Response.new(
-            raw => @results,
+            raw => $results,
             auto_pagination => $.auto_pagination,
         );
         if (!$ghres.is-success && $ghres.data<message>) {

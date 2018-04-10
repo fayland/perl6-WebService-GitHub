@@ -13,7 +13,7 @@ class WebService::GitHub::Issues does WebService::GitHub::Role {
     }
 
     method single-issue(Str :$repo, Int :$issue ) {
-      self.request('/repos/' ~ $repo ~ '/issues/' ~ $issue )
+      self.request('/repos/' ~ $repo ~ '/issues/' ~ $issue ).data;
     }
 
     method all-issues(Str $repo ) {
@@ -21,7 +21,7 @@ class WebService::GitHub::Issues does WebService::GitHub::Role {
 	my @issue-data;
 	for @issues -> $issue {
 	    die "Limit exceeded, please use auth" if !rate-limit-remaining();
-	    my $this-issue = self.single-issue( repo => $repo, issue => $issue<number> ).data;
+	    my $this-issue = self.single-issue( repo => $repo, issue => $issue<number> );
 	    for $this-issue.kv -> $k, $value { # merge issues
 		if ( ! $issue{$k} ) {
 		    $issue{$k} = $value;
