@@ -23,7 +23,11 @@ class WebService::GitHub::Response {
 	    }
 	    # say "Elems in data→ ", $data.elems;
 	}
-	return $data;
+	if $data.elems == 1 {
+	    return $data[0];
+	} else {
+	    return $data;
+	}
     }
 
     method header(Str $field) { $!raw[0].field($field).Str }
