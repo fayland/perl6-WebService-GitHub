@@ -13,7 +13,8 @@ class WebService::GitHub::Issues does WebService::GitHub::Role {
     }
 
     method single-issue(Str :$repo, Int :$issue ) {
-      self.request('/repos/' ~ $repo ~ '/issues/' ~ $issue ).data;
+	say "Issue $issue\n";
+	self.request('/repos/' ~ $repo ~ '/issues/' ~ $issue ).data;
     }
 
     method all-issues(Str $repo ) {
