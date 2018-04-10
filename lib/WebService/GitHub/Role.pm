@@ -83,13 +83,11 @@ role WebService::GitHub::Role {
           @links[0].values[1] ~~ / \< $<url> = .+ \&page/;
           my $api-url= $<url>; # Not persistent, apparently
           @links[0].values[1] ~~ / page \= $<last-page> = [ \d+ ] /;
-          say @links[0].values[1], " captures ", $<last-page>;
           for 2..$<last-page> -> $page {
               $request = $.prepare_request( $._build_request( $method, $api-url ~ "&page=$page" ));
-	      say $request;
               my $this-res = self._make_request($request);
 	      $this-res = $.handle_response($this-res);
-              say "\n→ Result ", $this-res.perl;
+	      @results.push: $this-res;
           }
         }
 
