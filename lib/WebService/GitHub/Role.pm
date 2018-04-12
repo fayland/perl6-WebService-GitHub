@@ -49,10 +49,6 @@ role WebService::GitHub::Role {
             }
         }
 
-# does not work
-#   for %args.kv -> $k, $value {
-#       self."$k"( $value );
-#   }
         # backwards
         $!access-token  = %args<access-token>  if %args<access-token>:exists;
         $!auth_login    = %args<auth_login>    if %args<auth_login>:exists;
@@ -62,6 +58,7 @@ role WebService::GitHub::Role {
 
     method request(Str $path, $method='GET', :%data is copy) {
         my $url = $.endpoint ~ $path;
+#	say "URL in request: $url";
         if ($method eq 'GET') {
             %data<per_page> = $.per_page if $.per_page.defined;
             %data<callback> = $.jsonp_callback if $.jsonp_callback.defined;
@@ -72,45 +69,37 @@ role WebService::GitHub::Role {
             }).join('&') if %data.elems;
         }
 
-        my $uri = URI.new($url);
-        my $request = HTTP::Request.new(|($method => $uri));
-        $request.header.field(User-Agent => $.useragent);
-        if $.media-type.defined {
-            $request.header.field(Accept => $.media-type);
-        } else {
-            $request.header.field(Accept => 'application/vnd.github.v3+json');
-        }
-
-        if $.time-zone.defined {
-            $request.header.field(
-                Time-Zone => $.time-zone
-            );
-        }
-
-        if $.auth_login.defined && $.auth_password.defined {
-            $request.header.field(
-                Authorization => "Basic " ~ MIME::Base64.encode-str("{$.auth_login}:{$.auth_password}")
-            );
-        } elsif ($.access-token) {
-            $request.header.field(
-                Authorization => "token " ~ $.access-token
-            );
-        }
-
-        if ($method ne 'GET' and %data) {
+        my $request = $.prepare_request( $._build_request( $method, $url ));
+	if ($method ne 'GET' and %data) {
             $request.content = to-json(%data).encode;
             $request.header.field(Content-Length => $request.content.bytes.Str);
         }
 
-        $request = $.prepare_request($request);
         my $res = self._make_request($request);
-	        $res = $.handle_response($res);
+	$res = $.handle_response($res);
+
+        # Do stuff if there's pagination
+        my $results = [$res];
+#	say $results.^name;
+        if my @links = $res.header.fields.grep( {.name eq 'Link'}) {
+#	    say "We've got pages";
+            @links[0].values[1] ~~ / \< $<url> = .+ \&page/;
+            my $api-url= $<url>; # Not  persistent, apparently
+            @links[0].values[1] ~~ / page \= $<last-page> = [ \d+ ] /;
+            for 2..$<last-page> -> $page {
+              $request = $.prepare_request( $._build_request( $method, $api-url ~ "&page=$page" ));
+              my $this-res = self._make_request($request);
+#	      say "This res";
+#	      ddt $this-res;
+	      $this-res = $.handle_response($this-res);
+	      $results.push: $this-res;
+            }
+        }
 
         my $ghres = WebService::GitHub::Response.new(
-          raw => $res,
-          auto_pagination => $.auto_pagination,
+            raw => $results,
+            auto_pagination => $.auto_pagination,
         );
-
         if (!$ghres.is-success && $ghres.data<message>) {
           my $message = $ghres.data<message>;
           my $errors =  $ghres.data<errors>;
@@ -150,6 +139,35 @@ role WebService::GitHub::Role {
             $.cache.set($request.file, $res);
             return $res;
         }
+    }
+
+    method _build_request($method, $url ) {
+	my $uri = URI.new($url);
+        my $request = HTTP::Request.new(|($method => $uri));
+        $request.header.field(User-Agent => $.useragent);
+        if $.media-type.defined {
+            $request.header.field(Accept => $.media-type);
+        } else {
+            $request.header.field(Accept => 'application/vnd.github.v3+json');
+        }
+
+        if $.time-zone.defined {
+            $request.header.field(
+                Time-Zone => $.time-zone
+            );
+        }
+
+        if $.auth_login.defined && $.auth_password.defined {
+            $request.header.field(
+                Authorization => "Basic " ~ MIME::Base64.encode-str("{$.auth_login}:{$.auth_password}")
+            );
+        } elsif ($.access-token) {
+            $request.header.field(
+                Authorization => "token " ~ $.access-token
+            );
+        }
+	return $request;
+
     }
 
     # for role override

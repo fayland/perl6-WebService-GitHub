@@ -6,11 +6,32 @@ class WebService::GitHub::Response {
     has $.raw;
 
     method data {
-        from-json($.raw.content);
+	my $data;
+	for $.raw.Array -> $results {
+	    # say to-json(from-json($results.content));
+	    my $content =  from-json($results.content);
+	    # say "This content is ", $content.^name;
+	    # say "elems in this result -> ", $content.elems;
+	    # say $content.^name;
+	    # say "First element";
+	    # ddt $content[0];
+	    # ddt $content;
+	    if $content ~~ Array {
+		$data.append: $content.Array;
+	    } else {
+		$data.append: $content;
+	    }
+	    # say "Elems in data→ ", $data.elems;
+	}
+	if $data.elems == 1 {
+	    return $data[0];
+	} else {
+	    return $data;
+	}
     }
 
-    method header(Str $field) { $!raw.field($field).Str }
-    method is-success { $!raw.is-success }
+    method header(Str $field) { $!raw[0].field($field).Str }
+    method is-success { $!raw[0].is-success }
 
     submethod get-link-header($rel) {
         state %link-header;
